@@ -1,10 +1,18 @@
 # Commandes
-## Installer les dépendances
-composer install
-## Commande doker pour lancer la bdd :
-docker run --name mariadbtest -e MYSQL_ROOT_PASSWORD=password -e MYSQL_USER=maria -e MYSQL_PASSWORD=password -p 3306:3306 -d mariadb:10.6
-## A ajouter au .env si vous utilisez la bdd dockerisé
-DATABASE_URL="mysql://root:password@127.0.0.1:3306/app?serverVersion=16&charset=utf8"
+## Installation de l'envionnement
+### Prérequis
+ - the latest version of Docker
+ - the latest version of composer
+
+### Lancer l'environnement de développement
+docker-compose up 
+## Avoir accès au conteneur
+Avec cette commande vous pourrez vous connecter au conteneur : 
+docker exec -it php bash
+
+### Ressource utilisée
+https://medium.com/@meherbensalah4/how-to-dockerize-symfony-project-f06bcd735308
+## Commande pour créer la base de données
 ## Créer la bdd 
 php bin/console doctrine:database:create
 ## Faire la migration

@@ -20,6 +20,10 @@ class Scenari
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $narrativeTram = null;
 
+    #[ORM\ManyToOne(inversedBy: 'scenari')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Wiki $wiki = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +49,18 @@ class Scenari
     public function setNarrativeTram(?string $narrativeTram): static
     {
         $this->narrativeTram = $narrativeTram;
+
+        return $this;
+    }
+
+    public function getWiki(): ?Wiki
+    {
+        return $this->wiki;
+    }
+
+    public function setWiki(?Wiki $wiki): static
+    {
+        $this->wiki = $wiki;
 
         return $this;
     }

@@ -20,11 +20,29 @@ class WikiController extends AbstractController
     public function index(): JsonResponse
     {
         return $this->json([
-            'message' => 'Welcome to your new controller!',
+            'message' => 'Welcome to wiki controller!',
             'path' => 'src/Controller/WikiController.php',
         ]);
     }
 
+    #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
+    public function getAll(WikiRepository $repository): JsonResponse
+    {
+        $wikis = $repository->findAll();
+        return $this->json($wikis);
+    }
+
+    #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
+    public function getOne(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): Response
+    {
+
+        $wiki = $repository->findOneById($wiki->getId());
+        return new Response(
+            $serializer->serialize($wiki, 'json'),
+            Response::HTTP_OK,
+            ['Content-type' => 'application/json']
+         );
+    }
 
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]
     public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
@@ -47,28 +65,20 @@ class WikiController extends AbstractController
     }
 
 
-    #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
-    public function getAll(WikiRepository $repository): JsonResponse
-    {
-        $wikis = $repository->findAll();
-        return $this->json($wikis);
-    }
+    
 
     #[Route('/api/wikis/{wiki}', name: "wiki.delete", methods: ["DELETE"])]
     public function deleteWiki(Wiki $wiki, WikiRepository $repository): JsonResponse
     {
-        $repository->deleteWiki($wiki);
-        $repository->flush();
+        $repository->removeWiki($wiki);
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route("/api/wikis/{wiki}", name:"wiki.update", methods: ["PUT, PATCH"])]
-    public function updateWiki(Wiki $wiki, WikiRepository $repository, SerializerInterface $serializer, Request $request, EntityManagerInterface $entityManager): JsonResponse
-
+    #[Route('/api/wikis/{wiki}', name:'wiki.update', methods: ["PUT"])]
+    public function updateWiki(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
     {
         $updateWiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $wiki]);
-        $entityManager->persist($updateWiki);
-        $entityManager->flush();
+        $repository->updateWiki($updateWiki);
         
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

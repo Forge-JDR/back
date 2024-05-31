@@ -42,10 +42,26 @@ class WikiRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function deleteWiki(Wiki $wiki): void
+    /**
+     * Returns a wiki by id.
+     *
+     * @param int $id The wiki id
+     * @return Wiki|null Returns a Wiki object
+     */
+    public function findOneById(int $id): ?Wiki
+    {
+        return $this->createQueryBuilder('w')
+            ->andWhere('w.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function removeWiki(Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
         $entityManager->remove($wiki);
+        $entityManager->flush();
     }
 
     public function updateWiki(Wiki $wiki): void

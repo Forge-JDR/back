@@ -26,6 +26,8 @@ class WikiRepository extends ServiceEntityRepository
     public function addWiki(Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
+        $wiki->setCreatedAt(new \DateTimeImmutable());
+        $wiki->setStatus('active');
         $entityManager->persist($wiki);
         $entityManager->flush();
     }

@@ -45,18 +45,15 @@ class WikiController extends AbstractController
     }
 
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]
-    public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): Response
     {
         $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json');
         
-        $wiki->setCreatedAt(new \DateTimeImmutable());
-        $wiki->setStatus('active');
-        $entityManager->persist($wiki);
-        $entityManager->flush();
-
+        $repository->addWiki($wiki);
+        $idWiki = $wiki->getId();
         //$location = $this->generateUrl('wiki.get', ['wiki' => $wiki->getId()], UrlGeneratorInterface::ABSOLUTE_URL); ['Location' => $location]
         $response = new Response(
-            $serializer->serialize($wiki, 'json'),
+            $serializer->serialize($repository->findOneById($idWiki) , 'json'),
             Response::HTTP_CREATED,
             ['Content-type' => 'application/json']
          );

@@ -19,10 +19,16 @@ class RegistrationController extends AbstractController
 {
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserRepository $repository, SerializerInterface $serializer): Response
+    public function register(Request $request, UserRepository $repository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
-        
+        $plaintextPassword = $user->getPassword();
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+        $user->setPassword($hashedPassword);
         $repository->addUser($user);
         $idUser = $user->getId();
 

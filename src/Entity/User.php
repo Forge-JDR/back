@@ -51,9 +51,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->status = 'active';
     }
 
-    public function getUsername(): ?string
+    public function getRealUsername(): ?string
     {
         return $this->username;
+    }
+
+    // Return email because lexik_jwt_authentication requires a getUsername method and i can't change it to email 
+    public function getUsername(): ?string
+    {
+        return $this->email;
     }
 
     public function setUsername(string $username): static
@@ -136,9 +142,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
+        $roles[] = 'ROLE_USER'; // Assure que chaque utilisateur a ce rôle par défaut
         return array_unique($roles);
     }
 

@@ -30,7 +30,9 @@ class ScenariController extends AbstractController
     public function getAll(ScenariRepository $repository): JsonResponse
     {
         $scenari = $repository->findAll();
-        return $this->json($scenari);
+        return $this->json($scenari, 200, [], [
+            'groups' => 'scenari.index'
+        ]);
     }
 
     #[Route('/api/scenari/{scenari}', name: "scenari.getOne", methods: ["GET"])]
@@ -38,11 +40,9 @@ class ScenariController extends AbstractController
     {
 
         $scenari = $repository->findOneById($scenari->getId());
-        return new Response(
-            $serializer->serialize($scenari, 'json'),
-            Response::HTTP_OK,
-            ['Content-type' => 'application/json']
-         );
+        return $this->json($scenari, 200, [], [
+            'groups' => ['scenari.index','scenari.details']
+        ]);
     }
 
     #[Route('/api/scenari', name: "scenari.create", methods: ["POST"])]

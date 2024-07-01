@@ -40,6 +40,13 @@ class ScenariRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function updateScenari(Scenari $scenari): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($scenari);
+        $entityManager->flush();
+    }
     
     /**
      * Delete a scenari
@@ -50,6 +57,7 @@ class ScenariRepository extends ServiceEntityRepository
     {
         $entityManager = $this->getEntityManager();
         $entityManager->remove($scenari);
+        $entityManager->flush();
     }
 
     public function getId() {

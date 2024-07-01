@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Repository\ScenariRepository;
-use App\Repository\WikiRepository;
 use App\Entity\Scenari;
+use App\Entity\Wiki;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ScenariController extends AbstractController
 {
@@ -41,26 +40,36 @@ class ScenariController extends AbstractController
 
         $scenari = $repository->findOneById($scenari->getId());
         return $this->json($scenari, 200, [], [
+            'groups' => ['scenari.index','scenari.details',]
+        ]);
+    }
+
+    #[Route('/api/scenari/{wiki}', name: "scenari.create", methods: ["POST"])]
+    public function createScenari(Wiki $wiki, Request $request, ScenariRepository $repository, SerializerInterface $serializer): JsonResponse
+    {
+        $scenari = $serializer->deserialize($request->getContent(), Scenari::class, 'json');
+        $scenari->setWiki($wiki);
+        $repository->addScenari($scenari, $wiki);
+
+        $idScenari = $repository->findOneById($scenari->getId());
+        return $this->json($idScenari, 200, [], [
             'groups' => ['scenari.index','scenari.details']
         ]);
     }
 
-    #[Route('/api/scenari', name: "scenari.create", methods: ["POST"])]
-    public function createScenari(Request $request, ScenariRepository $repository, WikiRepository $repositoryWiki, SerializerInterface $serializer): JsonResponse
+    #[Route('/api/scenari/{scenari}', name:'scenari.update', methods: ["PUT"])]
+    public function updateScenari(Scenari $scenari, SerializerInterface $serializer, Request $request, ScenariRepository $repository): JsonResponse
     {
-        $scenari = $serializer->deserialize($request->getContent(), Scenari::class, 'json');
+        $updateScenari = $serializer->deserialize($request->getContent(), Scenari::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $scenari]);
+        $repository->updateScenari($updateScenari);
+        
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 
-        $repository->addScenari($scenari);
-        $idScenari = $scenari->getId();
-        $wiki = $repositoryWiki->findOneById($scenari->wiki_id);
-
-        // $jsonScenari = $serializer->serialize($scenari, 'json');
-        $response = new Response(
-            $serializer->serialize($repository->findOneById($idScenari) , 'json'),
-            Response::HTTP_CREATED,
-            ['Content-type' => 'application/json']
-         );
-         
-         return $response;
+    #[Route('/api/scenari/{scenari}', name: "scenari.delete", methods: ["DELETE"])]
+    public function deleteScenari(Scenari $scenari, ScenariRepository $repository): JsonResponse
+    {
+        $repository->deleteScenari($scenari);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

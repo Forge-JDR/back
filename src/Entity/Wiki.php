@@ -144,17 +144,29 @@ class Wiki
     {
         return $this->scenari;
     }
-
+    
     public function addScenari(Scenari $scenari): static
     {
         if (!$this->scenari->contains($scenari)) {
             $this->scenari->add($scenari);
             $scenari->setWiki($this);
         }
+        
+        return $this;
+    }
+    
+    public function removeScenari(Scenari $scenari): static
+    {
+        if ($this->scenari->removeElement($scenari)) {
+            // set the owning side to null (unless already changed)
+            if ($scenari->getWiki() === $this) {
+                $scenari->setWiki(null);
+            }
+        }
 
         return $this;
     }
-
+    
     /**
      * @return Collection<int, Job>
      */
@@ -173,18 +185,6 @@ class Wiki
         return $this;
     }
 
-    public function removeScenari(Scenari $scenari): static
-    {
-        if ($this->scenari->removeElement($scenari)) {
-            // set the owning side to null (unless already changed)
-            if ($scenari->getWiki() === $this) {
-                $scenari->setWiki(null);
-            }
-        }
-
-        return $this;
-    }
-    
     public function removeJob(Job $job): static
     {
         if ($this->Jobs->removeElement($job)) {

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\WikiRepository;
 use App\Entity\Wiki;
+use App\Security\Voter\WikiVoter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,8 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-
+use Symfony\Flex\Recipe;
 
 class WikiController extends AbstractController
 {
@@ -44,6 +46,7 @@ class WikiController extends AbstractController
     }
 
     #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
+    #[IsGranted(WikiVoter::VIEW, subject: 'wiki')]
     public function getOne(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
     {
 
@@ -54,26 +57,24 @@ class WikiController extends AbstractController
     }
 
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]
-    public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): Response
+
+    public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json');
         
         $repository->addWiki($wiki);
-        $idWiki = $wiki->getId();
-        //$location = $this->generateUrl('wiki.get', ['wiki' => $wiki->getId()], UrlGeneratorInterface::ABSOLUTE_URL); ['Location' => $location]
-        $response = new Response(
-            $serializer->serialize($repository->findOneById($idWiki) , 'json'),
-            Response::HTTP_CREATED,
-            ['Content-type' => 'application/json']
-         );
-         
-         return $response;
+
+        $wiki = $repository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
     }
 
 
     
 
     #[Route('/api/wikis/{wiki}', name: "wiki.delete", methods: ["DELETE"])]
+    #[IsGranted(WikiVoter::DELETE, subject: 'wiki')]
     public function deleteWiki(Wiki $wiki, WikiRepository $repository): JsonResponse
     {
         $repository->removeWiki($wiki);
@@ -81,12 +82,16 @@ class WikiController extends AbstractController
     }
 
     #[Route('/api/wikis/{wiki}', name:'wiki.update', methods: ["PUT"])]
+    #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function updateWiki(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
     {
         $updateWiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $wiki]);
         $repository->updateWiki($updateWiki);
         
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        $wiki = $repository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
     }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Bestiary;
+use App\Entity\Wiki;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,6 +17,21 @@ class BestiaryRepository extends ServiceEntityRepository
         parent::__construct($registry, Bestiary::class);
     }
 
+    public function addBestiary( bestiary $bestiary, Wiki $wiki): void
+    {
+        $entityManager = $this->getEntityManager();
+        $bestiary->setWiki($wiki);
+        $entityManager->persist($bestiary);
+        $entityManager->flush();
+    }
+
+    public function removeBestiary( Bestiary $bestiary, Wiki $wiki): void
+    {
+        $entityManager = $this->getEntityManager();
+        $wiki->removeBestiary($bestiary);
+        $entityManager->remove($bestiary);
+        $entityManager->flush();
+    }
     //    /**
     //     * @return Bestiaries[] Returns an array of Bestiaries objects
     //     */

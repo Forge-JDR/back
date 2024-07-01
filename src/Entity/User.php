@@ -18,7 +18,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user.index', 'wiki.details'])]
+    #[Groups(['user.index', 'wiki.details', 'wiki.index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
@@ -47,7 +47,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $status = null;
 
     #[ORM\Column]
-    #[Groups(['user.details', 'wiki.details'])]
+    #[Groups(['user.details', 'wiki.details', 'wiki.index'])]
     private ?string $username = null;
 
     #[ORM\Column(type: 'datetime')]

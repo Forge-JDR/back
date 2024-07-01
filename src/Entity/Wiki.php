@@ -46,7 +46,7 @@ class Wiki
     private ?string $Status = 'inProgress';
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wikis')]
-    #[Groups(['wiki.details'])]
+    #[Groups(['wiki.details', 'wiki.index'])]
     private User $user;
 
     /**

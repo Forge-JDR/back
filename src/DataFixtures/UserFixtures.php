@@ -10,6 +10,7 @@ use App\Entity\Wiki;
 use App\Entity\Job;
 use App\Entity\Bestiary;
 use App\Entity\Race;
+use App\Entity\Scenari;
 
 class UserFixtures extends Fixture
 {
@@ -66,6 +67,16 @@ class UserFixtures extends Fixture
             $bestiary->setType('Type of bestary-'.  $b);
             $manager->persist($bestiary);
         }
+
+        // Create Scenari for each Wiki
+        for ($s = 0; $s < 3; $s++) {
+            $scenari = new Scenari();
+            $scenari->setTitle('Title of scenari-'.  $b);
+            $scenari->setNarrativeTram('Narrative tram of scenari-'. $b);
+            $scenari->setWiki($wiki);
+            $manager->persist($scenari);
+        }
+
         $manager->persist($wiki);
         $user->addWiki($wiki);
 

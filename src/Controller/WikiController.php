@@ -60,6 +60,7 @@ class WikiController extends AbstractController
         
         $repository->addWiki($wiki);
         $idWiki = $wiki->getId();
+        
         //$location = $this->generateUrl('wiki.get', ['wiki' => $wiki->getId()], UrlGeneratorInterface::ABSOLUTE_URL); ['Location' => $location]
         $response = new Response(
             $serializer->serialize($repository->findOneById($idWiki) , 'json'),

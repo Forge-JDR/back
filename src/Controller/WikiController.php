@@ -13,9 +13,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class WikiController extends AbstractController
 {
+
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+
     #[Route('/wiki', name: 'app_wiki')]
     public function index(): JsonResponse
     {
@@ -28,20 +42,20 @@ class WikiController extends AbstractController
     #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
     public function getAll(WikiRepository $repository): JsonResponse
     {
-        $wikis = $repository->findAll();
-        return $this->json($wikis);
+        $wikis = $repository->findAllWithStatus("published");
+        return $this->json($wikis, 200, [], [
+            'groups' => 'wiki.index'
+        ]);
     }
 
     #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
-    public function getOne(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): Response
+    public function getOne(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
     {
 
         $wiki = $repository->findOneById($wiki->getId());
-        return new Response(
-            $serializer->serialize($wiki, 'json'),
-            Response::HTTP_OK,
-            ['Content-type' => 'application/json']
-         );
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
     }
 
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]

@@ -26,11 +26,11 @@ class Wiki
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['wiki.index'])]
+    #[Groups(['wiki.index', 'user.details',  'wiki.index'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['wiki.index'])]
+    #[Groups(['wiki.index', 'user.details', 'wiki.index'])]
     private ?string $Name = null;
 
     #[ORM\Column(length: 2048)]
@@ -42,8 +42,12 @@ class Wiki
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 20, options: ['default' => 'inProgress'])]
-    #[Groups(['wiki.details'])]
+    #[Groups(['wiki.details', 'user.details', 'wiki.index'])]
     private ?string $Status = 'inProgress';
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wikis')]
+    #[Groups(['wiki.details'])]
+    private User $user;
 
     /**
      * @var Collection<int, Job>
@@ -211,6 +215,18 @@ class Wiki
                 $race->setWiki(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

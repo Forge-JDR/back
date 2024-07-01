@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "*",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "*",
+        "fzaninotto/faker": "^1.5",
         "gesdinet/jwt-refresh-token-bundle": "*",
         "lexik/jwt-authentication-bundle": "^3.0",
         "phpdocumentor/reflection-docblock": "^5.4",

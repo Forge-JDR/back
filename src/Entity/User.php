@@ -6,6 +6,9 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_UUID', fields: ['uuid'])]
@@ -15,15 +18,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user.index', 'wiki.details'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user.index'])]
     private ?string $uuid = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user.details'])]
     private array $roles = [];
 
     /**
@@ -33,22 +39,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column]
+    #[Groups(['user.details'])]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['user.details'])]
     private ?string $status = null;
 
     #[ORM\Column]
+    #[Groups(['user.details', 'wiki.details'])]
     private ?string $username = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['user.details'])]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\OneToMany(targetEntity: Wiki::class, mappedBy: 'user', orphanRemoval: true)]
+    #[Groups(['user.details'])]
+    private Collection $Wikis;
+
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->uuid = uniqid('user_', true);
         $this->status = 'active';
+        $this->Wikis = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, Wiki>
+     */
+    public function getWikis(): Collection
+    {
+        return $this->Wikis;
+    }
+
+    /**
+     * @param Collection<int, Wiki> $wikis
+     */
+    public function setWikis(Collection $wikis): static
+    {
+        $this->Wikis = $wikis;
+
+        return $this;
+    }
+
+    public function addWiki(Wiki $wiki): static
+    {
+        if (!$this->Wikis->contains($wiki)) {
+            $this->Wikis[] = $wiki;
+            $wiki->setUser($this);
+        }
+
+        return $this;
     }
 
     public function getRealUsername(): ?string

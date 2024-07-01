@@ -37,6 +37,20 @@ class WikiRepository extends ServiceEntityRepository
      *
      * @return Wiki[] Returns an array of Wiki objects
      */
+    public function findAllWithStatus(String $status): array
+    {
+        return $this->createQueryBuilder('w')
+            ->where('w.Status LIKE :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Returns all wikis.
+     *
+     * @return Wiki[] Returns an array of Wiki objects
+     */
     public function findAll(): array
     {
         return $this->createQueryBuilder('w')

@@ -3,16 +3,15 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\BestiaryRepository;
+use App\Repository\ScenarioRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-#[ORM\Entity(repositoryClass: BestiaryRepository::class)]
-class Bestiary
+#[ORM\Entity(repositoryClass: ScenarioRepository::class)]
+#[ApiResource]
+class Scenario
 {
-
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,25 +20,17 @@ class Bestiary
 
     #[ORM\Column(length: 255)]
     #[Groups(['wiki.details'])]
-    private ?string $Name = null;
+    private ?string $name = null;
 
     #[ORM\Column(length: 2048)]
     #[Groups(['wiki.details'])]
-    private ?string $Content = null;
-
-    #[ORM\Column(length: 255)]
-    #[Groups(['wiki.details'])]
-    private ?string $Type = null;
-
-    #[ORM\Column(length: 512, nullable: true)]
-    #[Groups(['wiki.details'])]
-    private ?string $imageUrl = null;
+    private ?string $content = null;
 
     #[ORM\Column]
     #[Groups(['wiki.details'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'bestiaries')]
+    #[ORM\ManyToOne(inversedBy: 'Scenarios')]
     #[ORM\JoinColumn(nullable: false)]
     #[MaxDepth(2)]
     private ?Wiki $wiki = null;
@@ -49,7 +40,6 @@ class Bestiary
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    
     public function getId(): ?int
     {
         return $this->id;
@@ -57,48 +47,24 @@ class Bestiary
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(?string $Name): static
+    public function setName(string $name): static
     {
-        $this->Name = $Name;
+        $this->name = $name;
 
         return $this;
     }
 
     public function getContent(): ?string
     {
-        return $this->Content;
+        return $this->content;
     }
 
     public function setContent(string $content): static
     {
-        $this->Content = $content;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->Type;
-    }
-
-    public function setType(string $Type): static
-    {
-        $this->Type = $Type;
-
-        return $this;
-    }
-
-    public function getImageUrl(): ?string
-    {
-        return $this->imageUrl;
-    }
-
-    public function setImageUrl(?string $imageUrl): static
-    {
-        $this->imageUrl = $imageUrl;
+        $this->content = $content;
 
         return $this;
     }
@@ -108,9 +74,9 @@ class Bestiary
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->createdAt = $createAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -126,5 +92,4 @@ class Bestiary
 
         return $this;
     }
-
 }

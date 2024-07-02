@@ -2,52 +2,51 @@
 
 namespace App\Repository;
 
-use App\Entity\Job;
+use App\Entity\Scenario;
 use App\Entity\Wiki;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
 /**
- * @extends ServiceEntityRepository<Jobs>
+ * @extends ServiceEntityRepository<Scenarios>
  */
-class JobRepository extends ServiceEntityRepository
+class ScenarioRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Job::class);
+        parent::__construct($registry, Scenario::class);
     }
 
-    public function addJob(Job $job, Wiki $wiki): void
+    public function addScenario(Scenario $Scenario, Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
-        $job->setWiki($wiki);
-        $entityManager->persist($job);
+        $Scenario->setWiki($wiki);
+        $entityManager->persist($Scenario);
         $entityManager->flush();
     }
 
-    public function removeJob(Job $job, Wiki $wiki): void
+    public function removeScenario(Scenario $Scenario, Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
-        if ($job->getWiki() !== $wiki) {
+        if ($Scenario->getWiki() !== $wiki) {
             throw new NotFoundHttpException();
         }
-        $wiki->removeJob($job);
-        $entityManager->remove($job);
+        $wiki->removeScenario($Scenario);
+        $entityManager->remove($Scenario);
         $entityManager->flush();
     }
 
-    public function updateJob(Job $job, Wiki $wiki): void
+    public function updateScenario(Scenario $Scenario, Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
-        if ($job->getWiki() !== $wiki) {
+        if ($Scenario->getWiki() !== $wiki) {
             throw new NotFoundHttpException();
         }
-        $entityManager->persist($job);
+        $entityManager->persist($Scenario);
         $entityManager->flush();
     }
 //    /**
-//     * @return Jobs[] Returns an array of Jobs objects
+//     * @return Scenarios[] Returns an array of Scenarios objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -61,7 +60,7 @@ class JobRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Jobs
+//    public function findOneBySomeField($value): ?Scenarios
 //    {
 //        return $this->createQueryBuilder('j')
 //            ->andWhere('j.exampleField = :val')

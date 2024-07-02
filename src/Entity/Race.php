@@ -25,7 +25,7 @@ class Race
 
     #[ORM\Column(length: 2048)]
     #[Groups(['wiki.details'])]
-    private ?string $description = null;
+    private ?string $Content = null;
 
     #[ORM\Column(length: 512, nullable: true)]
     #[Groups(['wiki.details'])]
@@ -64,14 +64,14 @@ class Race
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getContent(): ?string
     {
-        return $this->description;
+        return $this->Content;
     }
 
-    public function setDescription(string $description): static
+    public function setContent(string $content): static
     {
-        $this->description = $description;
+        $this->Content = $content;
 
         return $this;
     }

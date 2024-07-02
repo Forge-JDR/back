@@ -36,10 +36,12 @@ class UserController extends AbstractController
 
 
    
-    #[Route ('/api/users', name: 'app_user_get_info', methods: ['GET'])]
+    #[Route ('/api/me', name: 'app_user_get_info', methods: ['GET'])]
     public function getUserInfo(): JsonResponse
     {
         $user = $this->tokenStorageInterface->getToken()->getUser();
+        //$decodedJwtToken = $this->jwtManager->decode($this->tokenStorageInterface->getToken());
+
         return $this->json(
            $user,200,[], 
               ['groups' => ['user.details']]

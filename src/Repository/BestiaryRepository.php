@@ -6,6 +6,7 @@ use App\Entity\Bestiary;
 use App\Entity\Wiki;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Bestiaries>
@@ -28,8 +29,21 @@ class BestiaryRepository extends ServiceEntityRepository
     public function removeBestiary( Bestiary $bestiary, Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
+        if ($bestiary->getWiki() !== $wiki) {
+            throw new NotFoundHttpException();
+        }
         $wiki->removeBestiary($bestiary);
         $entityManager->remove($bestiary);
+        $entityManager->flush();
+    }
+
+    public function updateBestiary(Bestiary $bestiary, Wiki $wiki): void
+    {
+        $entityManager = $this->getEntityManager();
+        if ($bestiary->getWiki() !== $wiki) {
+            throw new NotFoundHttpException();
+        }
+        $entityManager->persist($bestiary);
         $entityManager->flush();
     }
     //    /**

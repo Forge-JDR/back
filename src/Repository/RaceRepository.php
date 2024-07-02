@@ -6,6 +6,7 @@ use App\Entity\Race;
 use App\Entity\Wiki;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @extends ServiceEntityRepository<Races>
@@ -28,10 +29,28 @@ class RaceRepository extends ServiceEntityRepository
     public function removeRace(race $race, Wiki $wiki): void
     {
         $entityManager = $this->getEntityManager();
+        //verify if race is in wiki
+        if ($race->getWiki() !== $wiki) {
+            throw new \Exception;
+        }
         $wiki->removerace($race);
         $entityManager->remove($race);
         $entityManager->flush();
     }
+
+    public function updateRace(Race $race, Wiki $wiki): void
+    {
+        $entityManager = $this->getEntityManager();
+        //verify if race is in wiki
+        if ($race->getWiki() !== $wiki) {
+            throw new NotFoundHttpException();
+        }
+        $entityManager->persist($race);
+        $entityManager->flush();
+    }
+
+
+
 
     //    /**
     //     * @return Races[] Returns an array of Races objects

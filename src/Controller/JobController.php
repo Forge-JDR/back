@@ -48,4 +48,17 @@ class JobController extends AbstractController
         ]);
     }
 
+    #[Route('/api/wikis/{wiki}/jobs/{job}', name: 'update.job', methods: ['PUT'])]
+    #[IsGranted(WikiElementVoter::EDIT, subject: 'job')]
+    public function updateJob(Job $job, Wiki $wiki, Request $request, JobRepository $jobRepository, WikiRepository $wikiRepository, SerializerInterface $serializer): Response
+    {
+        $job = $serializer->deserialize($request->getContent(), Job::class, 'json', ['object_to_populate' => $job]);
+        $jobRepository->updateJob($job, $wiki);
+
+        $wiki = $wikiRepository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
+    }
+
 }

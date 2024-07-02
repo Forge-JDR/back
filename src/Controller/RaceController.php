@@ -46,4 +46,18 @@ class RaceController extends AbstractController
         ]);
     }
 
+    #[Route('/api/wikis/{wiki}/races/{race}', name: 'update.race', methods: ['PUT'])]
+    #[IsGranted(WikiElementVoter::EDIT, subject: 'race')]
+    public function updateRace(Race $race, Wiki $wiki, Request $request, RaceRepository $raceRepository, WikiRepository $wikiRepository, SerializerInterface $serializer): Response
+    {
+        $race = $serializer->deserialize($request->getContent(), Race::class, 'json', ['object_to_populate' => $race]);
+        
+        $raceRepository->updateRace($race, $wiki);
+
+        $wiki = $wikiRepository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
+    }
+
 }

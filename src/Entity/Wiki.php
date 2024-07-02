@@ -3,9 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\WikiRepository;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
@@ -19,6 +19,7 @@ class Wiki
         $this->Jobs = new ArrayCollection();
         $this->bestiaries = new ArrayCollection();
         $this->Races = new ArrayCollection();
+        $this->Scenarios = new ArrayCollection();
     }
 
 
@@ -73,6 +74,13 @@ class Wiki
     #[Groups(['wiki.details'])]
     private Collection $Races;
 
+    /**
+     * @var Collection<int, Race>
+     */
+    #[ORM\OneToMany(targetEntity: Scenario::class, mappedBy: 'wiki', orphanRemoval: true)]
+    #[MaxDepth(2)]
+    #[Groups(['wiki.details'])]
+    private Collection $Scenarios;
 
     
 
@@ -129,6 +137,36 @@ class Wiki
         return $this;
     }
 
+    /**
+     * @return Collection<int, Scenario>
+     */
+    public function getScenarios(): Collection
+    {
+        return $this->Scenarios;
+    }
+    
+    public function addScenario(Scenario $scenari): static
+    {
+        if (!$this->Scenarios->contains($scenari)) {
+            $this->Scenarios->add($scenari);
+            $scenari->setWiki($this);
+        }
+        
+        return $this;
+    }
+    
+    public function removeScenario(Scenario $scenari): static
+    {
+        if ($this->Scenarios->removeElement($scenari)) {
+            // set the owning side to null (unless already changed)
+            if ($scenari->getWiki() === $this) {
+                $scenari->setWiki(null);
+            }
+        }
+
+        return $this;
+    }
+    
     /**
      * @return Collection<int, Job>
      */

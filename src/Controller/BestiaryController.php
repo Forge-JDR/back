@@ -48,4 +48,16 @@ class BestiaryController extends AbstractController
         ]);
     }
 
+    #[Route('/api/wikis/{wiki}/bestiaries/{bestiary}', name: 'update.bestiary', methods: ['PUT'])]
+    #[IsGranted(WikiElementVoter::EDIT, subject: 'bestiary')]
+    public function updateBestiary(Bestiary $bestiary, Wiki $wiki, Request $request, BestiaryRepository $bestiaryRepository, WikiRepository $wikiRepository, SerializerInterface $serializer): Response
+    {
+        $bestiary = $serializer->deserialize($request->getContent(), Bestiary::class, 'json', ['object_to_populate' => $bestiary]);
+        $bestiaryRepository->updateBestiary($bestiary, $wiki);
+
+        $wiki = $wikiRepository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details']
+        ]);
+    }
 }

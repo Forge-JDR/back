@@ -1,5 +1,4 @@
 security:
-
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -11,25 +10,26 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: email
+                property: email     
+
     firewalls:
         login:
             pattern: ^/api/login
-            provider: app_user_provider
             stateless: true
+            provider: app_user_provider
             json_login:
                 check_path: /api/login_check
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                
             refresh_jwt:
                 check_path: /api/token/refresh
             
         api:
             pattern:   ^/api
             stateless: true
-            provider: app_user_provider
             jwt: ~
             
 
@@ -38,7 +38,6 @@ security:
             security: false
         main:
             lazy: true
-            provider: app_user_provider
 
 
             # activate different ways to authenticate

@@ -25,8 +25,8 @@ class UserFixtures extends Fixture
 
         $plaintextPassword = 'admin';
         $user = new user();
-        $user->setUsername('admin');
-        $user->setEmail('admin@gmail.com');
+        $user->setUsername('admin@gmail.com');
+        $user->setPseudo('admin');
         
         $hashedPassword = $this->userPasswordHasher->hashPassword(
             $user,
@@ -136,8 +136,8 @@ class UserFixtures extends Fixture
         // User
         $plaintextPassword = 'password';
         $user = new user();
-        $user->setUsername('user');
-        $user->setEmail('user@gmail.com');
+        $user->setUsername('user@gmail.com');
+        $user->setPseudo('user');
         
         $hashedPassword = $this->userPasswordHasher->hashPassword(
             $user,
@@ -242,8 +242,8 @@ class UserFixtures extends Fixture
         // User Michel
         $plaintextPassword = 'password';
         $user = new user();
-        $user->setUsername('michel');
-        $user->setEmail('michel@gmail.com');
+        $user->setUsername('michel@gmail.com');
+        $user->setPseudo('michel');
         
         $hashedPassword = $this->userPasswordHasher->hashPassword(
             $user,

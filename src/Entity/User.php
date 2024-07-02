@@ -13,8 +13,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_UUID', fields: ['uuid'])]
-#[ORM\UniqueConstraint(name: 'EMAIL', fields: ['email'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUserInterface
+#[ORM\UniqueConstraint(name: 'USERNAME', fields: ['username'])]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -40,15 +40,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
     private ?string $password = null;
 
     #[ORM\Column]
-    #[Groups(['user.details'])]
-    private ?string $email = null;
+    #[Groups(['user.details', 'wiki.details', 'wiki.index'])]
+    private ?string $pseudo = null;
 
     #[ORM\Column]
     #[Groups(['user.details'])]
     private ?string $status = null;
 
     #[ORM\Column]
-    #[Groups(['user.details', 'wiki.details', 'wiki.index'])]
+    #[Groups(['user.details'])]
     private ?string $username = null;
 
     #[ORM\Column(type: 'datetime')]
@@ -96,15 +96,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         return $this;
     }
 
-    public function getRealUsername(): ?string
-    {
-        return $this->username;
-    }
-
     // Return email because lexik_jwt_authentication requires a getUsername method and i can't change it to email 
     public function getUsername(): ?string
     {
-        return $this->email;
+        return $this->username;
     }
 
     public function setUsername(string $username): static
@@ -138,14 +133,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getPseudo(): ?string
     {
-        return $this->email;
+        return $this->pseudo;
     }
 
-    public function setEmail(string $email): static
+    public function setPseudo(string $pseudo): static
     {
-        $this->email = $email;
+        $this->pseudo = $pseudo;
 
         return $this;
     }
@@ -225,15 +220,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JWTUser
         // $this->plainPassword = null;
     }
 
-   public static function createFromPayload($username, array $payload)
-    {
-        $user = new self();
-        $user->setEmail($payload['email']);
-        $user->setUsername($payload['username']);
-        $user->setRoles($payload['roles']);
-        $user->setUuid($payload['uuid']);
-        $user->setUsername($payload['username']);
-        $user->setStatus($payload['status']);
-        return $user;
-    }
 }

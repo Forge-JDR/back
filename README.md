@@ -5,10 +5,12 @@
  - the latest version of composer
 
 ### Lancer l'environnement de développement
-docker-compose up 
+docker-compose up -d
 ## Avoir accès au conteneur
 Avec cette commande vous pourrez vous connecter au conteneur : 
 docker exec -it php bash
+## Lancer le web service au sein du conteneur
+symfony server:start
 
 ### Ressource utilisée
 https://medium.com/@meherbensalah4/how-to-dockerize-symfony-project-f06bcd735308

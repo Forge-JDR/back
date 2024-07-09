@@ -5,6 +5,9 @@ namespace App\Repository;
 use App\Entity\Wiki;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\File\File;
+use App\Entity\Picture;
+use DateTime;
 
 /**
  * @extends ServiceEntityRepository<Wiki>
@@ -30,6 +33,20 @@ class WikiRepository extends ServiceEntityRepository
         $entityManager->flush();
     }
     
+    public function setPictureFile(Wiki $wiki, File $file, string $fileName): void
+    {
+        $downloadedPicture = new Picture();
+        $downloadedPicture->setFichierImage($file);
+        $downloadedPicture->settitle($file->getFilename());
+        $downloadedPicture->setPublicPath('uploads/images');;
+        $downloadedPicture->setRealPath($fileName);
+        $entityManager = $this->getEntityManager();
+        $wiki->setImageFile($downloadedPicture);
+        $entityManager->persist($downloadedPicture);
+        $entityManager->persist($wiki);
+        $entityManager->flush();
+    }
+
     /**
      * Returns all wikis.
      *
@@ -87,6 +104,14 @@ class WikiRepository extends ServiceEntityRepository
 
     public function getId() {
         return $this->id;
+    }
+
+    // Remove picture from wiki
+    public function removePicture(Wiki $wiki): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($wiki->getImageFile());
+        $entityManager->flush();
     }
 
 }

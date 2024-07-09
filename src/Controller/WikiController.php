@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\WikiRepository;
 use App\Entity\Wiki;
+use App\Repository\PictureRepository;
 use App\Security\Voter\WikiVoter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -41,18 +42,17 @@ class WikiController extends AbstractController
     {
         $wikis = $repository->findAllWithStatus("published");
         return $this->json($wikis, 200, [], [
-            'groups' => 'wiki.index'
+            'groups' => ['wiki.index','picture.details']
         ]);
     }
 
     #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
     #[IsGranted(WikiVoter::VIEW, subject: 'wiki')]
-    public function getOne(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
+    public function getOne(Wiki $wiki, WikiRepository $repository): JsonResponse
     {
-
         $wiki = $repository->findOneById($wiki->getId());
         return $this->json($wiki, 200, [], [
-            'groups' => ['wiki.index','wiki.details']
+            'groups' => ['wiki.index','wiki.details','picture.details']
         ]);
     }
 
@@ -70,6 +70,24 @@ class WikiController extends AbstractController
         ]);
     }
 
+    #[Route('/api/wikis/{wiki}/pictures', name: "wiki.add.picture", methods: ["POST"])]
+    #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
+    public function addPicture(Wiki $wiki, WikiRepository $wikiRepository, PictureRepository $pictureRepository,Request $request): JsonResponse
+    {
+        $picture = $request->files->get('file');
+        $fileName = $request->files->get('file')->getClientOriginalName();
+
+        // Delete physical picture with real path if it already exists
+        if($wiki->getImageFile() !== null){
+            $pictureRepository->removePictureFromFileSystem($wiki->getImageFile());
+        }
+
+        $wikiRepository->setPictureFile($wiki,$picture, $fileName);
+        $wiki = $wikiRepository->findOneById($wiki->getId());
+        return $this->json($wiki, 200, [], [
+            'groups' => ['wiki.index','wiki.details','picture.details']
+        ]);
+    }
 
     
 

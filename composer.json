@@ -34,7 +34,8 @@
         "symfony/twig-bundle": "7.0.*",
         "symfony/validator": "7.0.*",
         "symfony/yaml": "7.0.*",
-        "symfonycasts/verify-email-bundle": "^1.17"
+        "symfonycasts/verify-email-bundle": "^1.17",
+        "vich/uploader-bundle": "^2.4"
     },
     "config": {
         "allow-plugins": {

@@ -1,0 +1,12 @@
+vich_uploader:
+    db_driver: orm
+
+    mappings:
+       imagesload:
+           uri_prefix: /uploads/images
+           upload_destination: '%kernel.project_dir%/public/uploads/images'
+           namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+           inject_on_load:     true
+           delete_on_remove:   true
+           delete_on_update:   true
+

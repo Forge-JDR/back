@@ -33,6 +33,7 @@ class WikiElementVoter extends Voter
             case self::EDIT:
                 if (
                     $subject->getWiki()->getUser() === $user ||
+                    $subject->getUser() === $user ||
                     in_array('ROLE_ADMIN', $user->getRoles()) 
                 ) {
                     return true;

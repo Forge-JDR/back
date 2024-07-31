@@ -3,22 +3,22 @@
 namespace App\Security\Voter;
 
 use App\Entity\User;
-use App\Entity\Wiki;
+use App\Entity\Caracter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class WikiVoter extends Voter
+class CaracterVoter extends Voter
 {
-    public const EDIT = 'WIKI_EDIT';
-    public const VIEW = 'WIKI_VIEW';
-    public const DELETE = 'WIKI_DELETE';
+    public const EDIT = 'CARACTER_EDIT';
+    public const VIEW = 'CARACTER_VIEW';
+    public const DELETE = 'CARACTER_DELETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
         
         return in_array($attribute, [self::EDIT, self::VIEW, self::DELETE])
-            && $subject instanceof \App\Entity\Wiki;
+            && $subject instanceof \App\Entity\Caracter;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -46,8 +46,7 @@ class WikiVoter extends Voter
             case self::VIEW:
                 if (
                 $subject->getUser() === $user ||
-                in_array('ROLE_ADMIN', $user->getRoles()) ||
-                $subject->getStatus() === 'published'
+                in_array('ROLE_ADMIN', $user->getRoles())
                 ) {
                     return true;
                 } else {

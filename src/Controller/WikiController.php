@@ -72,6 +72,7 @@ class WikiController extends AbstractController
         // Associer l'utilisateur actuellement authentifié au wiki
         $wiki->setUser($this->getUser());
         
+
         $repository->addWiki($wiki);
 
         $wiki = $repository->findOneById($wiki->getId());

@@ -25,11 +25,11 @@ class Caracter
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(['caracter.details', 'caracter.index'])]
+    #[Groups(['caracter.details', 'caracter.index', 'user.details'])]
     private $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['caracter.details', 'caracter.index'])]
+    #[Groups(['caracter.details', 'caracter.index','user.details'])]
     private ?string $Name = null;
 
     #[ORM\Column(type: 'text')]
@@ -41,7 +41,7 @@ class Caracter
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[Groups(['caracter.details', 'caracter.index'])]
+    #[Groups(['caracter.details', 'caracter.index','user.details'])]
     private ?Picture $imageFile = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'caracters')]

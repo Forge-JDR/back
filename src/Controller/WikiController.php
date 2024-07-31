@@ -39,20 +39,12 @@ class WikiController extends AbstractController
     #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
     public function getAll(WikiRepository $repository): JsonResponse
     {
-        $wikis = $repository->findAll();
+        $wikis = $repository->findAllWithStatus("published");
         return $this->json($wikis, 200, [], [
             'groups' => ['wiki.index','picture.details']
         ]);
     }
 
-    // #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
-    // public function getAllPublished(WikiRepository $repository): JsonResponse
-    // {
-    //     $wikis = $repository->findAllWithStatus("published");
-    //     return $this->json($wikis, 200, [], [
-    //         'groups' => ['wiki.index','picture.details']
-    //     ]);
-    // }
 
     #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
     #[IsGranted(WikiVoter::VIEW, subject: 'wiki')]
@@ -120,20 +112,4 @@ class WikiController extends AbstractController
             'groups' => ['wiki.index','wiki.details']
         ]);
     }
-
-    // #[Route('/api/user/wikis', name: "user_wikis", methods: ["GET"])]
-    // public function getUserWikis(): JsonResponse
-    // {
-    //     $user = $this->security->getUser();
-
-    //     if (!$user) {
-    //         return new JsonResponse(['error' => 'Unauthorized'], 401);
-    //     }
-
-    //     $wikis = $this->wikiRepository->findBy(['user' => $user]);
-
-    //     return new JsonResponse($wikis, 200, [], [
-    //         'groups' => ['wiki.index','wiki.details']
-    //     ]);
-    // }
 }

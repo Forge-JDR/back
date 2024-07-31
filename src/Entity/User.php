@@ -59,6 +59,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user.details'])]
     private Collection $Wikis;
 
+    #[ORM\OneToMany(targetEntity: Caracter::class, mappedBy: 'user', orphanRemoval: true)]
+    #[Groups(['user.details'])]
+    private Collection $Caracters;
 
     public function __construct()
     {
@@ -66,6 +69,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->uuid = uniqid('user_', true);
         $this->status = 'active';
         $this->Wikis = new ArrayCollection();
+        $this->Caracters = new ArrayCollection();
     }
 
     /**
@@ -91,6 +95,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (!$this->Wikis->contains($wiki)) {
             $this->Wikis[] = $wiki;
             $wiki->setUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Caracter>
+     */
+    public function getCaracters(): Collection
+    {
+        return $this->Caracters;
+    }
+
+    /**
+     * @param Collection<int, Caracter> $caracters
+     */
+
+    public function setCaracters(Collection $caracters): static
+    {
+        $this->Caracters = $caracters;
+
+        return $this;
+    }
+
+    public function addCaracter(Caracter $caracter): static
+    {
+        dd($this);
+        if (!$this->Caracters->contains($caracter)) {
+            $this->Caracters[] = $caracter;
+            
+            $caracter->setUser($this);
         }
 
         return $this;

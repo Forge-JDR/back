@@ -49,14 +49,34 @@ class CaracterRepository extends ServiceEntityRepository
     /**
      * Returns all caracters.
      *
-     * @return Wiki[] Returns an array of Wiki objects
+     * @return Caracters[] Returns an array of Caracters objects
      */
-    public function findAllWithStatus(String $status): array
+    public function findAll(): array
     {
         return $this->createQueryBuilder('w')
-            ->where('w.Status LIKE :status')
-            ->setParameter('status', $status)
             ->getQuery()
             ->getResult();
+    }
+
+    public function removeCaracter(Caracter $caracter): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($caracter);
+        $entityManager->flush();
+    }
+
+    public function updateCaracter(Caracter $caracter): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($caracter);
+        $entityManager->flush();
+    }
+
+    // Remove picture from caracter
+    public function removePicture(Caracter $caracter): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($caracter->getImageFile());
+        $entityManager->flush();
     }
 }

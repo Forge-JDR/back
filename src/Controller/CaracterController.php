@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Repository\CaracterRepository;
 use App\Entity\Caracter;
 use App\Repository\PictureRepository;
-use App\Security\Voter\CaracterVoter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Flex\Recipe;
+use App\Security\Voter\CaracterVoter;
 
 class CaracterController extends AbstractController
 {
@@ -37,14 +37,6 @@ class CaracterController extends AbstractController
         ]);
     }
 
-    #[Route('/api/caracters', name: "caracter.getAll", methods: ["GET"])]
-    public function getAll(CaracterRepository $repository): JsonResponse
-    {
-        $caracters = $repository->findAllWithStatus("published");
-        return $this->json($caracters, 200, [], [
-            'groups' => ['caracter.index','picture.details']
-        ]);
-    }
 
     #[Route('/api/caracters/{caracter}', name: "caracter.getOne", methods: ["GET"])]
     #[IsGranted(CaracterVoter::VIEW, subject: 'caracter')]
@@ -61,12 +53,12 @@ class CaracterController extends AbstractController
     public function createCaracter(Request $request, CaracterRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $caracter = $serializer->deserialize($request->getContent(), Caracter::class, 'json');
-        
+        $caracter->setUser($this->getUser());
         $repository->addCaracter($caracter);
 
         $caracter = $repository->findOneById($caracter->getId());
         return $this->json($caracter, 200, [], [
-            'groups' => ['cara$caracter.index','cara$caracter.details']
+            'groups' => ['caracter.index','caracter.details']
         ]);
     }
 

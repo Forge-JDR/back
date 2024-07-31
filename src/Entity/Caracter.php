@@ -4,22 +4,67 @@ namespace App\Entity;
 
 use App\Repository\CaracterRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\WikiRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: CaracterRepository::class)]
+#[Vich\Uploadable]
 class Caracter
 {
+
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    #[Groups(['caracter.details', 'caracter.index'])]
+    private $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $name;
+    #[Groups(['caracter.details', 'caracter.index'])]
+    private ?string $Name = null;
+
+    #[ORM\Column(type: 'text')]
+    #[Groups(['caracter.index'])]
+    private ?string $Content = null;
+
+    #[ORM\Column]
+    #[Groups(['caracter.details'])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['caracter.details', 'caracter.index'])]
+    private ?Picture $imageFile = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'caracters')]
+    #[Groups(['caracter.details', 'caracter.index'])]
+    private User $user;
 
      public function getId(): ?int
     {
         return $this->id;
     }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
 
     public function getName(): ?string
     {
@@ -57,16 +102,14 @@ class Caracter
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function setImageFile(?Picture $imageFile): void
     {
-        return $this->Status;
+        $this->imageFile = $imageFile;
     }
 
-    public function setStatus(string $Status): static
+    public function getImageFile(): ?Picture
     {
-        $this->Status = $Status;
-
-        return $this;
+        return $this->imageFile;
     }
 
     

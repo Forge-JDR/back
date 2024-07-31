@@ -30,6 +30,19 @@ RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 
 WORKDIR /var/www
 ENV COMPOSER_ALLOW_SUPERUSER=1
-COPY . .
-RUN composer install
+COPY ./bin ./bin
+COPY ./config ./config
+COPY ./public ./public
+COPY ./src ./src
+COPY migrations ./migrations
+COPY vendor ./vendor
+COPY composer.json .
+COPY composer.phar .
+COPY composer.lock .
+COPY symfony.lock .
+COPY launchApp.sh .
+COPY reboot.sh .
+RUN chmod +x launchApp.sh
+RUN touch .env
 
+CMD [ "sh","./launchApp.sh" ]

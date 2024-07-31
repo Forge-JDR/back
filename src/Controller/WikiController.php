@@ -27,7 +27,6 @@ class WikiController extends AbstractController
         $this->serializer = $serializer;
     }
 
-
     #[Route('/wiki', name: 'app_wiki')]
     public function index(): JsonResponse
     {
@@ -40,11 +39,20 @@ class WikiController extends AbstractController
     #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
     public function getAll(WikiRepository $repository): JsonResponse
     {
-        $wikis = $repository->findAllWithStatus("published");
+        $wikis = $repository->findAll();
         return $this->json($wikis, 200, [], [
             'groups' => ['wiki.index','picture.details']
         ]);
     }
+
+    // #[Route('/api/wikis', name: "wiki.getAll", methods: ["GET"])]
+    // public function getAllPublished(WikiRepository $repository): JsonResponse
+    // {
+    //     $wikis = $repository->findAllWithStatus("published");
+    //     return $this->json($wikis, 200, [], [
+    //         'groups' => ['wiki.index','picture.details']
+    //     ]);
+    // }
 
     #[Route('/api/wikis/{wiki}', name: "wiki.getOne", methods: ["GET"])]
     #[IsGranted(WikiVoter::VIEW, subject: 'wiki')]
@@ -57,10 +65,12 @@ class WikiController extends AbstractController
     }
 
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]
-
     public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json');
+
+        // Associer l'utilisateur actuellement authentifié au wiki
+        $wiki->setUser($this->getUser());
         
         $repository->addWiki($wiki);
 
@@ -89,8 +99,6 @@ class WikiController extends AbstractController
         ]);
     }
 
-    
-
     #[Route('/api/wikis/{wiki}', name: "wiki.delete", methods: ["DELETE"])]
     #[IsGranted(WikiVoter::DELETE, subject: 'wiki')]
     public function deleteWiki(Wiki $wiki, WikiRepository $repository): JsonResponse
@@ -112,4 +120,19 @@ class WikiController extends AbstractController
         ]);
     }
 
+    // #[Route('/api/user/wikis', name: "user_wikis", methods: ["GET"])]
+    // public function getUserWikis(): JsonResponse
+    // {
+    //     $user = $this->security->getUser();
+
+    //     if (!$user) {
+    //         return new JsonResponse(['error' => 'Unauthorized'], 401);
+    //     }
+
+    //     $wikis = $this->wikiRepository->findBy(['user' => $user]);
+
+    //     return new JsonResponse($wikis, 200, [], [
+    //         'groups' => ['wiki.index','wiki.details']
+    //     ]);
+    // }
 }

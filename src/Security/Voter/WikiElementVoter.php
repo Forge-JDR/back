@@ -10,12 +10,13 @@ class WikiElementVoter extends Voter
 {
     public const EDIT = 'WIKI_ELEMENT_EDIT';
     public const VIEW = 'WIKI_ELEMENT_VIEW';
+    public const DELETE = 'WIKI_ELEMENT_DELETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT, self::VIEW]);
+        return in_array($attribute, [self::EDIT, self::VIEW, self::DELETE]);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -45,6 +46,17 @@ class WikiElementVoter extends Voter
                     $subject->getWiki()->getUser() === $user ||
                     in_array('ROLE_ADMIN', $user->getRoles()) ||
                     $subject->getWiki()->getStatus() === 'published'
+                ) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+                break;
+                case self::DELETE:
+                if (
+                    $subject->getWiki()->getUser() === $user ||
+                    in_array('ROLE_ADMIN', $user->getRoles()) 
                 ) {
                     return true;
                 } else {

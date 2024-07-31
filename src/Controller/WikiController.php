@@ -61,7 +61,7 @@ class WikiController extends AbstractController
     public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): JsonResponse
     {
         $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json');
-        
+        $wiki->setUser($this->getUser());
         $repository->addWiki($wiki);
 
         $wiki = $repository->findOneById($wiki->getId());

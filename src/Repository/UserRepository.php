@@ -108,6 +108,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->$username = $username;
     }
 
+    public function getPseudo()
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo($pseudo)
+    {
+        $this->$pseudo = $pseudo;
+    }
+
     public function getPassword()
     {
         return $this->password;

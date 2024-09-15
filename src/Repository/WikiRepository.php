@@ -55,8 +55,8 @@ class WikiRepository extends ServiceEntityRepository
     public function findAllWithStatus(String $status): array
     {
         return $this->createQueryBuilder('w')
-            ->where('w.Status LIKE :status')
-            ->setParameter('status', $status)
+            ->where('w.Status LIKE :Status')
+            ->setParameter('Status', $status)
             ->getQuery()
             ->getResult();
     }

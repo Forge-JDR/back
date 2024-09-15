@@ -6,7 +6,6 @@ use App\Repository\WikiRepository;
 use App\Entity\Wiki;
 use App\Repository\PictureRepository;
 use App\Security\Voter\WikiVoter;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Flex\Recipe;
+use Symfony\Component\HttpFoundation\Request;
 
 class WikiController extends AbstractController
 {
@@ -104,12 +104,18 @@ class WikiController extends AbstractController
     #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function updateWiki(Wiki $wiki, SerializerInterface $serializer, Request $request, WikiRepository $repository): JsonResponse
     {
+        $this->denyAccessUnlessGranted('EDIT', $wiki);
+    
         $updateWiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $wiki]);
         $repository->updateWiki($updateWiki);
         
         $wiki = $repository->findOneById($wiki->getId());
         return $this->json($wiki, 200, [], [
-            'groups' => ['wiki.index','wiki.details']
+            'groups' => ['wiki.index', 'wiki.details']
         ]);
     }
+    
+
+
+    
 }

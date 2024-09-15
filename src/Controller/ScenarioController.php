@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 
 use App\Entity\Wiki;
 use App\Entity\Scenario;
+use App\Security\Voter\WikiVoter;
 use App\Form\RegistrationFormType;
 use App\Repository\ScenarioRepository;
 use App\Repository\WikiRepository;
@@ -20,12 +21,13 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+
 class ScenarioController extends AbstractController
 {
 
     #[Route('/api/wikis/{wiki}/scenarios', name: 'add.Scenario', methods: ['POST'])]
-    #[IsGranted(WikiElementVoter::EDIT, subject: 'Scenario')]
-    public function addScenario(Scenario $Scenario, Wiki $wiki, Request $request, ScenarioRepository $ScenarioRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
+    #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
+    public function addScenario(Wiki $wiki, Request $request, ScenarioRepository $ScenarioRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
     {
         $Scenario = $serializer->deserialize($request->getContent(), Scenario::class, 'json');
         $Scenario->setWiki($wiki);

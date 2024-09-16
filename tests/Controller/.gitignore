@@ -1,0 +1,16 @@
+#requière l'installation de bundle
+composer require --dev phpunit/phpunit
+#La commande prend du temps
+
+# Vérifier l'installation
+composer require symfony/test-pack --dev
+
+------------------------------------------------
+
+
+
+# Pour tester une bdd distante, utiliser Guzzle
+composer require guzzlehttp/guzzle
+
+#Les tests sont exécutés avec la commande suivante
+php bin/phpunit

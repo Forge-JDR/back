@@ -1,5 +1,5 @@
 # Build le back 
-docker build -t rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:0.1 -f docker/php/Dockerfile .
+docker build -t rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:0.3 -f docker/php/Dockerfile .
 
 # Push l'image
 docker push rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:0.2
@@ -28,10 +28,10 @@ docker run -d \
 docker run -d \
   --name phpbackforgejdr \
   --restart always \
-  -e DATABASE_URL='mysql://admin:zoKzum-1supsi-xatkov@51.159.74.117:8867/app?serverVersion=8.0.0&charset=utf8' \
+  -e DATABASE_URL='mysql://admin:hiMnaw-vecsog-0cywdo@51.159.74.117:8867/app?serverVersion=8.0.0&charset=utf8' \
   -p 8741:8000 \
   --network dev-environment \
-  rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:0.1
+  rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:0.3
 
 
 

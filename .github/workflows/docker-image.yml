@@ -1,0 +1,74 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Change to your deployment branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+      SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+      TAG: ${{ github.sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Use your project's PHP version
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run unit tests
+        run: php bin/phpunit
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          registry: rg.fr-par.scw.cloud
+          username: ${{ secrets.SCW_USERNAME }}
+          password: ${{ secrets.SCW_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:${{ env.TAG }} -f docker/php/Dockerfile .
+
+      - name: Push Docker image
+        run: docker push rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:${{ env.TAG }}
+
+      - name: Install Scaleway CLI
+        run: |
+          curl -sL https://github.com/scaleway/scaleway-cli/releases/latest/download/scaleway-cli-linux-amd64 -o scw
+          chmod +x scw
+          sudo mv scw /usr/local/bin/scw
+
+      - name: Configure Scaleway CLI
+        run: |
+          scw config set access-key $SCW_ACCESS_KEY
+          scw config set secret-key $SCW_SECRET_KEY
+          scw config set default-organization-id YOUR_ORG_ID
+          scw config set default-region fr-par
+
+      - name: Deploy to Scaleway
+        run: |
+          scw container container create name=container-back-forge-jdr \
+            registry-image=rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:${{ env.TAG }} \
+            min-scale=1 max-scale=1 memory-limit=128 cpu-limit=70 timeout=300s namespace-id=940522cc-2a4a-4ead-86a0-a37225e447c3 \
+            max-concurrency=1 protocol=unknown_protocol sandbox=v1 privacy=public port=8000 \
+            environment-variables.DATABASE_URL=mysql://${{ env.DATABASE_USER }}:${{ env.DATABASE_PASSWORD }}@51.159.74.117:8867/app?serverVersion=8.0.0&charset=utf8 \
+            environment-variables.JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem \
+            environment-variables.JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem \
+            environment-variables.APP_ENV=dev \
+            environment-variables.JWT_PASSPHRASE='${{ env.JWT_PASSPHRASE }}'

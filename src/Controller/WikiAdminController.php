@@ -30,7 +30,7 @@ class WikiAdminController extends AbstractController
     {
         $wikis = $repository->findAll();
         return $this->json($wikis, 200, [], [
-            'groups' => 'wiki.index'
+            'groups' => ['wiki.index','picture.details']
         ]);
     }
 
@@ -61,5 +61,6 @@ class WikiAdminController extends AbstractController
         
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
+
 
 }

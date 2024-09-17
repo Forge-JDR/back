@@ -2,21 +2,23 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\User;
+use App\Entity\Caracter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class WikiElementVoter extends Voter
+class CaracterVoter extends Voter
 {
-    public const EDIT = 'WIKI_ELEMENT_EDIT';
-    public const VIEW = 'WIKI_ELEMENT_VIEW';
-    public const DELETE = 'WIKI_ELEMENT_DELETE';
+    public const EDIT = 'CARACTER_EDIT';
+    public const VIEW = 'CARACTER_VIEW';
+    public const DELETE = 'CARACTER_DELETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT, self::VIEW, self::DELETE]);
+        
+        return in_array($attribute, [self::EDIT, self::VIEW, self::DELETE])
+            && $subject instanceof \App\Entity\Caracter;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -32,38 +34,35 @@ class WikiElementVoter extends Voter
         switch ($attribute) {
             case self::EDIT:
                 if (
-                    $subject->getWiki()->getUser() === $user ||
                     $subject->getUser() === $user ||
-                    in_array('ROLE_ADMIN', $user->getRoles()) 
-                ) {
-                    return true;
-                } else {
-                    return false;
-                }
+                    in_array('ROLE_ADMIN', $user->getRoles())
+                    ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 break;
 
             case self::VIEW:
                 if (
-                    $subject->getWiki()->getUser() === $user ||
-                    in_array('ROLE_ADMIN', $user->getRoles()) ||
-                    $subject->getWiki()->getStatus() === 'published'
+                $subject->getUser() === $user ||
+                in_array('ROLE_ADMIN', $user->getRoles())
                 ) {
                     return true;
                 } else {
                     return false;
                 }
-
                 break;
-                case self::DELETE:
+            
+            case self::DELETE:
                 if (
-                    $subject->getWiki()->getUser() === $user ||
-                    in_array('ROLE_ADMIN', $user->getRoles()) 
-                ) {
-                    return true;
-                } else {
-                    return false;
-                }
-
+                    $subject->getUser() === $user ||
+                    in_array('ROLE_ADMIN', $user->getRoles())
+                    ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 break;
         }
 

@@ -42,8 +42,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      */
     public function addUser(User $user): void
     {
-
-
         $entityManager = $this->getEntityManager();
         $entityManager->persist($user);
         $entityManager->flush();
@@ -81,6 +79,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $entityManager->flush();
     }
 
+
     public function updateUser(User $user): void
     {
         $entityManager = $this->getEntityManager();
@@ -106,6 +105,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function setUsername($username)
     {
         $this->$username = $username;
+    }
+
+    public function getPseudo()
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo($pseudo)
+    {
+        $this->$pseudo = $pseudo;
     }
 
     public function getPassword()

@@ -10,6 +10,7 @@
         "api-platform/core": "^3.3",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "*",
+        "doctrine/doctrine-fixtures-bundle": "^3.6",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "*",
         "fzaninotto/faker": "^1.5",

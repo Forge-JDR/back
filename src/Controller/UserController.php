@@ -19,6 +19,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
@@ -48,4 +49,45 @@ class UserController extends AbstractController
         );
     }
 
+    #[Route('/api/me', name: 'app_user_update', methods: ['PUT'])]
+    public function updateUser(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, SerializerInterface $serializer): JsonResponse
+    {
+        $user = $this->tokenStorageInterface->getToken()->getUser();
+        //dd($user);
+        $this->denyAccessUnlessGranted('USER_EDIT', $user);
+        $user = $serializer->deserialize($request->getContent(), User::class, 'json', ['object_to_populate' => $user]);
+        
+        
+        $data = json_decode($request->getContent(), true);
+        
+        if (isset($data['username'])) {
+            $user->setUsername($data['username']);
+        }
+
+        if (isset($data['password'])) {
+            $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
+            $user->setPassword($hashedPassword);
+        }
+
+        $userRepository->updateUser($user);
+
+        return $this->json($user, 200, [], [
+            'groups' => ['user.details']
+        ]);
+    }
+
+    #[Route('/api/me', name: 'app_user_delete', methods: ['DELETE'])]
+    public function deleteUser(UserRepository $userRepository): JsonResponse
+    {
+        $user = $this->tokenStorageInterface->getToken()->getUser();
+        $this->denyAccessUnlessGranted('USER_DELETE', $user);
+        $userRepository->removeUser($user);
+
+        return $this->json(['message' => 'User deleted successfully'], 200);
+    }
+
 }
+
+
+
+    

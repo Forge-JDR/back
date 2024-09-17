@@ -5,7 +5,7 @@ namespace App\Tests;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-class ScenarioControllerTest extends TestCase
+class BestiaryControllerTest extends TestCase
 {
     private $client;
     private $id;
@@ -35,18 +35,20 @@ class ScenarioControllerTest extends TestCase
         return $tokenData['token'];
     }
 
-    public function testCreateUpdateDeleteScenario()
+    public function testCreateUpdateDeleteBestiary()
     {
 
-        // Creation d'un scenario
-        $response = $this->client->request('POST', '/api/wikis/15/scenarios', [
+        // Creation d'un bestiary
+        $response = $this->client->request('POST', '/api/wikis/15/bestiaries', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario',
+                'name' => 'nom de la bête',
                 'content' => 'mon histoire',
+                'type' => 'monstre',
+                'imageUrl' => 'superLien',
             ]
         ]);
 
@@ -54,42 +56,46 @@ class ScenarioControllerTest extends TestCase
 
         // Récupère l'ID
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $bestiaries = $responseContent['bestiaries'];
+        usort($bestiaries, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
         });
-        $dernierScenarioCree = $scenarios[0];
-        $this->id = $dernierScenarioCree['id'];
+        $dernierBestiariesCree = $bestiaries[0];
+        $this->id = $dernierBestiariesCree['id'];
+        
 
-        // Modification du Scenario
-        $response = $this->client->request('PUT', "/api/wikis/15/scenarios/{$this->id}", [
+
+        // Modification du bestiary
+        $response = $this->client->request('PUT', "/api/wikis/15/bestiaries/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario changé',
-                'content' => 'mon histoire modifié',
+                'name' => 'nom de la bête changé',
+                'description' => 'mon histoire modifié',
+                'type' => 'monstre',
+                'imageUrl' => 'superLien',
             ]
         ]);
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
-        
+
         // Récupère le nom
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $bestiaries = $responseContent['bestiaries'];
+        usort($bestiaries, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
         });
-        $dernierScenarioCree = $scenarios[0];
-        $name = $dernierScenarioCree['name'];
+        $dernierBestiariesCree = $bestiaries[0];
+        $name = $dernierBestiariesCree['Name'];
         // Vérifie la modification des valeur
-        $this->assertEquals('titre de scenario changé', $name);
+        $this->assertEquals('nom de la bête changé', $name);
         
 
 
-        // Suppression du scenario
-        $response = $this->client->request('DELETE', "/api/wikis/15/scenarios/{$this->id}", [
+        // Suppression du bestiary
+        $response = $this->client->request('DELETE', "/api/wikis/15/bestiaries/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',

@@ -5,7 +5,7 @@ namespace App\Tests;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-class ScenarioControllerTest extends TestCase
+class RaceControllerTest extends TestCase
 {
     private $client;
     private $id;
@@ -35,18 +35,19 @@ class ScenarioControllerTest extends TestCase
         return $tokenData['token'];
     }
 
-    public function testCreateUpdateDeleteScenario()
+    public function testCreateUpdateDeleteRace()
     {
 
-        // Creation d'un scenario
-        $response = $this->client->request('POST', '/api/wikis/15/scenarios', [
+        // Creation d'un race
+        $response = $this->client->request('POST', '/api/wikis/15/races', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario',
+                'name' => 'nom de la race',
                 'content' => 'mon histoire',
+                'imageUrl' => 'superLien',
             ]
         ]);
 
@@ -54,42 +55,44 @@ class ScenarioControllerTest extends TestCase
 
         // Récupère l'ID
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $race = $responseContent['Races'];
+        usort($race, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
         });
-        $dernierScenarioCree = $scenarios[0];
-        $this->id = $dernierScenarioCree['id'];
+        $dernierRaceCree = $race[0];
+        $this->id = $dernierRaceCree['id'];
 
-        // Modification du Scenario
-        $response = $this->client->request('PUT', "/api/wikis/15/scenarios/{$this->id}", [
+
+        // Modification du race
+        $response = $this->client->request('PUT', "/api/wikis/15/races/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario changé',
+                'name' => 'nom de la race changé',
                 'content' => 'mon histoire modifié',
+                'imageUrl' => 'superLien',
             ]
         ]);
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
-        
+
         // Récupère le nom
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $race = $responseContent['Races'];
+        usort($race, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
-        });
-        $dernierScenarioCree = $scenarios[0];
-        $name = $dernierScenarioCree['name'];
+        });        
+        $dernierRaceCree = $race[0];
+        $name = $dernierRaceCree['Name'];
         // Vérifie la modification des valeur
-        $this->assertEquals('titre de scenario changé', $name);
+        $this->assertEquals('nom de la race changé', $name);
         
 
 
-        // Suppression du scenario
-        $response = $this->client->request('DELETE', "/api/wikis/15/scenarios/{$this->id}", [
+        // Suppression du race
+        $response = $this->client->request('DELETE', "/api/wikis/15/races/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',

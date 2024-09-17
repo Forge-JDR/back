@@ -5,7 +5,7 @@ namespace App\Tests;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-class ScenarioControllerTest extends TestCase
+class WikiControllerTest extends TestCase
 {
     private $client;
     private $id;
@@ -35,67 +35,77 @@ class ScenarioControllerTest extends TestCase
         return $tokenData['token'];
     }
 
-    public function testCreateUpdateDeleteScenario()
+    public function testCreateUpdateDeleteWiki()
     {
 
-        // Creation d'un scenario
-        $response = $this->client->request('POST', '/api/wikis/15/scenarios', [
+        // Creation d'un wiki
+        $response = $this->client->request('POST', '/api/wikis', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario',
-                'content' => 'mon histoire',
+                'name' => 'Mon wiki a moi',
+                'content' => 'l\'histoire de mon wiki',
             ]
         ]);
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
 
-        // Récupère l'ID
+        // Vérifie l'ajout des valeur
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
-            return strtotime($b['createdAt']) - strtotime($a['createdAt']);
-        });
-        $dernierScenarioCree = $scenarios[0];
-        $this->id = $dernierScenarioCree['id'];
+        $this->assertArrayHasKey('id', $responseContent);
+        $this->id = $responseContent['id']; // Sauvegarder l'ID pour la modification
 
-        // Modification du Scenario
-        $response = $this->client->request('PUT', "/api/wikis/15/scenarios/{$this->id}", [
+        // Recherche de tout les WIKIs
+        $response = $this->client->request('GET', '/api/wikis', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
-            ],
-            'json' => [
-                'name' => 'titre de scenario changé',
-                'content' => 'mon histoire modifié',
+            ]
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
+
+        // Recherche d'un WIKI
+        $response = $this->client->request('GET', "/api/wikis/{$this->id}", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Content-Type' => 'application/json',
             ]
         ]);
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
         
-        // Récupère le nom
-        $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
-            return strtotime($b['createdAt']) - strtotime($a['createdAt']);
-        });
-        $dernierScenarioCree = $scenarios[0];
-        $name = $dernierScenarioCree['name'];
+        // Modification du wiki
+        $response = $this->client->request('PUT', "/api/wikis/{$this->id}", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'name' => 'c\'est toujours mon wiki a moi',
+                'content' => 'l\'histoire de mon wiki évolue',
+            ]
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
+
         // Vérifie la modification des valeur
-        $this->assertEquals('titre de scenario changé', $name);
+        $responseContent = json_decode($response->getBody(), true);
+        $this->assertArrayHasKey('Name', $responseContent);
+        $this->assertEquals('c\'est toujours mon wiki a moi', $responseContent['Name']);
         
 
 
-        // Suppression du scenario
-        $response = $this->client->request('DELETE', "/api/wikis/15/scenarios/{$this->id}", [
+        // Suppression du wiki
+        $response = $this->client->request('DELETE', "/api/wikis/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ]
         ]);
 
-        $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
+        $this->assertEquals(204, $response->getStatusCode()); // Vérifie le code renvoyé
     }
 }

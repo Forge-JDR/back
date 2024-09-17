@@ -5,7 +5,7 @@ namespace App\Tests;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-class ScenarioControllerTest extends TestCase
+class JobControllerTest extends TestCase
 {
     private $client;
     private $id;
@@ -35,17 +35,17 @@ class ScenarioControllerTest extends TestCase
         return $tokenData['token'];
     }
 
-    public function testCreateUpdateDeleteScenario()
+    public function testCreateUpdateDeleteJob()
     {
 
-        // Creation d'un scenario
-        $response = $this->client->request('POST', '/api/wikis/15/scenarios', [
+        // Creation d'un job
+        $response = $this->client->request('POST', '/api/wikis/15/jobs', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario',
+                'name' => 'titre du job',
                 'content' => 'mon histoire',
             ]
         ]);
@@ -54,42 +54,44 @@ class ScenarioControllerTest extends TestCase
 
         // Récupère l'ID
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $jobs = $responseContent['Jobs'];
+        usort($jobs, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
         });
-        $dernierScenarioCree = $scenarios[0];
-        $this->id = $dernierScenarioCree['id'];
+        $dernierJobsCree = $jobs[0];
+        $this->id = $dernierJobsCree['id'];
+        
 
-        // Modification du Scenario
-        $response = $this->client->request('PUT', "/api/wikis/15/scenarios/{$this->id}", [
+
+        // Modification du job
+        $response = $this->client->request('PUT', "/api/wikis/15/jobs/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'titre de scenario changé',
-                'content' => 'mon histoire modifié',
+                'name' => 'titre du job changé',
+                'description' => 'mon histoire modifié',
             ]
         ]);
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
-        
-        // Récupère le nom
+
+        // Récupère l'ID
         $responseContent = json_decode($response->getBody(), true);
-        $scenarios = $responseContent['Scenarios'];
-        usort($scenarios, function($a, $b) {
+        $jobs = $responseContent['Jobs'];
+        usort($jobs, function($a, $b) {
             return strtotime($b['createdAt']) - strtotime($a['createdAt']);
         });
-        $dernierScenarioCree = $scenarios[0];
-        $name = $dernierScenarioCree['name'];
+        $dernierJobsCree = $jobs[0];
+        $name = $dernierJobsCree['name'];
         // Vérifie la modification des valeur
-        $this->assertEquals('titre de scenario changé', $name);
+        $this->assertEquals('titre du job changé', $name);
         
 
 
-        // Suppression du scenario
-        $response = $this->client->request('DELETE', "/api/wikis/15/scenarios/{$this->id}", [
+        // Suppression du job
+        $response = $this->client->request('DELETE', "/api/wikis/15/jobs/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',

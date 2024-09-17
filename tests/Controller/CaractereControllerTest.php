@@ -5,7 +5,7 @@ namespace App\Tests;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-class WikiControllerTest extends TestCase
+class CaractereControllerTest extends TestCase
 {
     private $client;
     private $id;
@@ -35,18 +35,17 @@ class WikiControllerTest extends TestCase
         return $tokenData['token'];
     }
 
-    public function testCreateGetUpdateDeleteWiki()
+    public function testCaractere()
     {
-
-        // Creation d'un wiki
-        $response = $this->client->request('POST', '/api/wikis', [
+         // Creation d'un caractere
+         $response = $this->client->request('POST', '/api/caracters', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'Mon wiki a moi',
-                'content' => 'l\'histoire de mon wiki',
+                'name' => 'Khrone Ikels',
+                'Content' => 'BEST PALADIN EVER',
             ]
         ]);
 
@@ -57,8 +56,8 @@ class WikiControllerTest extends TestCase
         $this->assertArrayHasKey('id', $responseContent);
         $this->id = $responseContent['id']; // Sauvegarder l'ID pour la modification
 
-        // Recherche de tout les WIKIs
-        $response = $this->client->request('GET', '/api/wikis', [
+        // Recherche d'un caractere
+        $response = $this->client->request('GET', "/api/caracters/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
@@ -67,25 +66,15 @@ class WikiControllerTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
 
-        // Recherche d'un WIKI
-        $response = $this->client->request('GET', "/api/wikis/{$this->id}", [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
-
-        $this->assertEquals(200, $response->getStatusCode()); // Vérifie le code renvoyé
-        
-        // Modification du wiki
-        $response = $this->client->request('PUT', "/api/wikis/{$this->id}", [
+         // Modification du wiki
+         $response = $this->client->request('PUT', "/api/caracters/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
-                'name' => 'c\'est toujours mon wiki a moi',
-                'content' => 'l\'histoire de mon wiki évolue',
+                'name' => 'Khrone Ikels',
+                'Content' => 'PALADIN UTLTIME DE LA LUMIERE DIVINE',
             ]
         ]);
 
@@ -93,13 +82,11 @@ class WikiControllerTest extends TestCase
 
         // Vérifie la modification des valeur
         $responseContent = json_decode($response->getBody(), true);
-        $this->assertArrayHasKey('Name', $responseContent);
-        $this->assertEquals('c\'est toujours mon wiki a moi', $responseContent['Name']);
+        $this->assertArrayHasKey('Content', $responseContent);
+        $this->assertEquals('PALADIN UTLTIME DE LA LUMIERE DIVINE', $responseContent['Content']);
         
-
-
         // Suppression du wiki
-        $response = $this->client->request('DELETE', "/api/wikis/{$this->id}", [
+        $response = $this->client->request('DELETE', "/api/caracters/{$this->id}", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',
@@ -107,5 +94,6 @@ class WikiControllerTest extends TestCase
         ]);
 
         $this->assertEquals(204, $response->getStatusCode()); // Vérifie le code renvoyé
+
     }
 }

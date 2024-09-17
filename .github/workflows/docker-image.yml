@@ -38,7 +38,7 @@ jobs:
 
 
       - name: Login to Scaleway Container Registry
-        run: echo "${{ secrets.SCW_PASSWORD }}" | docker login rg.fr-par.scw.cloud -u ${{ secrets.SCW_USERNAME }} --password-stdin
+        run: docker login rg.fr-par.scw.cloud -u ${{ secrets.SCW_USERNAME }} -p ${{ secrets.SCW_PASSWORD }}
 
       - name: Build Docker image
         run: docker build -t rg.fr-par.scw.cloud/registryforgejdr/backforgejdr:${{ env.TAG }} -f docker/php/Dockerfile .

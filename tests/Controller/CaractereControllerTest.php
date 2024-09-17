@@ -37,8 +37,8 @@ class CaractereControllerTest extends TestCase
 
     public function testCaractere()
     {
-         // Creation d'un caractere
-         $response = $this->client->request('POST', '/api/caracters', [
+        // Creation d'un charactere
+        $response = $this->client->request('POST', '/api/caracters', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->token,
                 'Content-Type' => 'application/json',

@@ -55,18 +55,51 @@ class UserController extends AbstractController
         $user = $this->tokenStorageInterface->getToken()->getUser();
         //dd($user);
         $this->denyAccessUnlessGranted('USER_EDIT', $user);
-        $user = $serializer->deserialize($request->getContent(), User::class, 'json', ['object_to_populate' => $user]);
-        
-        
-        $data = json_decode($request->getContent(), true);
-        
+        $data = $request->toArray();
+        $allowed = ['username', 'pseudo', 'password', 'currentPassword'];
+        if (array_diff(array_keys($data), $allowed)) {
+            return $this->json(['message' => 'Champ non autorisé.'], 400);
+        }
+        foreach ($data as $value) {
+            if (!is_string($value)) {
+                return $this->json(['message' => 'Les champs doivent être des chaînes de caractères.'], 400);
+            }
+        }
+        if (isset($data['username']) && !filter_var($data['username'], FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['message' => 'Adresse e-mail invalide.'], 400);
+        }
+        if (isset($data['pseudo']) && (trim($data['pseudo']) === '' || mb_strlen($data['pseudo']) > 255)) {
+            return $this->json(['message' => 'Pseudo invalide.'], 400);
+        }
+        if (isset($data['password'])) {
+            if (!isset($data['currentPassword']) || !$passwordHasher->isPasswordValid($user, $data['currentPassword'])) {
+                return $this->json(['message' => 'Mot de passe actuel incorrect.'], 400);
+            }
+            if (mb_strlen($data['password']) < 8 || mb_strlen($data['password']) > 4096) {
+                return $this->json(['message' => 'Le mot de passe doit contenir entre 8 et 4096 caractères.'], 400);
+            }
+        }
+        if (isset($data['username'])) {
+            $existing = $userRepository->findOneBy(['username' => $data['username']]);
+            if ($existing && $existing->getId() !== $user->getId()) {
+                return $this->json(['message' => 'Cet e-mail est déjà utilisé.'], 409);
+            }
+        }
+        if (isset($data['pseudo'])) {
+            $existing = $userRepository->findOneBy(['pseudo' => trim($data['pseudo'])]);
+            if ($existing && $existing->getId() !== $user->getId()) {
+                return $this->json(['message' => 'Pseudo déjà utilisé.'], 409);
+            }
+        }
+
         if (isset($data['username'])) {
             $user->setUsername($data['username']);
         }
-
+        if (isset($data['pseudo'])) {
+            $user->setPseudo(trim($data['pseudo']));
+        }
         if (isset($data['password'])) {
-            $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
-            $user->setPassword($hashedPassword);
+            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
         }
 
         $userRepository->updateUser($user);
@@ -91,3 +124,4 @@ class UserController extends AbstractController
 
 
     
+

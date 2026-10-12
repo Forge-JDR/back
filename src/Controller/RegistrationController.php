@@ -1,90 +1,37 @@
 <?php
-
 namespace App\Controller;
 
-use App\Repository\UserRepository;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
-    private $jwtManager;
-    private $tokenStorageInterface;
-
-    public function __construct(JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorageInterface)
-    {
-        $this->jwtManager = $jwtManager;
-        $this->tokenStorageInterface = $tokenStorageInterface;
-    }
-
     #[Route('/register', name: 'app_register', methods: ['POST'])]
-    public function register(Request $request, UserRepository $repository, SerializerInterface $serializer, UserPasswordHasherInterface $passwordHasher): Response
+    public function register(Request $request, UserRepository $repository, UserPasswordHasherInterface $passwordHasher, JWTTokenManagerInterface $jwtManager): JsonResponse
     {
-        try {
-            $user = $serializer->deserialize($request->getContent(), User::class, 'json');
-            $plaintextPassword = $user->getPassword();
-    
-            // Vérifier si l'email est déjà pris
-            $existingUser = $repository->findOneBy(['username' => $user->getUsername()]);
-            if ($existingUser) {
-                return new Response(
-                    json_encode(['error' => 'Cet e-mail est déjà utilisé.']),
-                    Response::HTTP_CONFLICT, // HTTP 409 Conflict
-                    ['Content-Type' => 'application/json']
-                );
-            }
-    
-            // Vérifier si le pseudo est déjà pris
-            $existingPseudo = $repository->findOneBy(['pseudo' => $user->getPseudo()]);
-            if ($existingPseudo) {
-                return new Response(
-                    json_encode(['error' => 'Pseudo déjà utilisé.']),
-                    Response::HTTP_CONFLICT, // HTTP 409 Conflict
-                    ['Content-Type' => 'application/json']
-                );
-            }
-    
-            // Définir les rôles par défaut
-            $user->setRoles(['ROLE_USER']);
-    
-            // Hash du mot de passe
-            $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
-            $user->setPassword($hashedPassword);
-    
-            // Sauvegarde de l'utilisateur
-            $repository->addUser($user);
-    
-            // Génération du token JWT
-            $jwt = $this->jwtManager->create($user);
-    
-            $responseData = [
-                'user' => $serializer->serialize($user, 'json', ['groups' => ['user.details']]),
-                'token' => $jwt,
-            ];
-    
-            return new Response(
-                json_encode($responseData),
-                Response::HTTP_CREATED,
-                ['Content-Type' => 'application/json']
-            );
-        } catch (\Exception $e) {
-            // Attraper toutes les autres erreurs et renvoyer une réponse JSON
-            return new Response(
-                json_encode(['error' => 'Erreur lors de l\'inscription : ' . $e->getMessage()]),
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
+        $data = $request->toArray();
+        if (array_diff(array_keys($data), ['username', 'password', 'pseudo']) ||
+            !is_string($data['username'] ?? null) || mb_strlen($data['username']) > 180 || !filter_var($data['username'], FILTER_VALIDATE_EMAIL) ||
+            !is_string($data['pseudo'] ?? null) || trim($data['pseudo']) === '' || mb_strlen($data['pseudo']) > 100 ||
+            !is_string($data['password'] ?? null) || mb_strlen($data['password']) < 8 || mb_strlen($data['password']) > 4096) {
+            return $this->json(['error' => 'E-mail, pseudo et mot de passe valides requis.'], 400);
         }
+        $pseudo = trim($data['pseudo']);
+        if ($repository->findOneBy(['username' => $data['username']]) || $repository->findOneBy(['pseudo' => $pseudo])) {
+            return $this->json(['error' => 'Cet e-mail ou pseudo est déjà utilisé.'], 409);
+        }
+        $user = new User();
+        $user->setUsername($data['username']);
+        $user->setPseudo($pseudo);
+        $user->setRoles(['ROLE_USER']);
+        $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+        $repository->addUser($user);
+        return $this->json(['token' => $jwtManager->create($user)], 201);
     }
-    
-
 }

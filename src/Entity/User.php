@@ -121,7 +121,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function addCaracter(Caracter $caracter): static
     {
-        dd($this);
         if (!$this->Caracters->contains($caracter)) {
             $this->Caracters[] = $caracter;
             

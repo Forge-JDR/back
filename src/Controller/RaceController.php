@@ -26,7 +26,7 @@ class RaceController extends AbstractController
     #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function addRace(Wiki $wiki, Request $request, RaceRepository $raceRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
     {
-        $race = $serializer->deserialize($request->getContent(), Race::class, 'json');
+        $race = $serializer->deserialize($request->getContent(), Race::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type']]);
         $race->setWiki($wiki);
         $raceRepository->addRace($race, $wiki);
 
@@ -71,7 +71,7 @@ class RaceController extends AbstractController
         if ($job->getWiki()->getId() !== $wiki->getId()) {
             return $this->json(['error' => 'Race does not belong to the specified wiki.'], 400);
         }
-        $race = $serializer->deserialize($request->getContent(), Race::class, 'json', ['object_to_populate' => $race]);
+        $race = $serializer->deserialize($request->getContent(), Race::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type'], 'object_to_populate' => $race]);
         
         $raceRepository->updateRace($race, $wiki);
 

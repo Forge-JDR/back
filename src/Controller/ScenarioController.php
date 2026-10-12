@@ -29,7 +29,7 @@ class ScenarioController extends AbstractController
     #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function addScenario(Wiki $wiki, Request $request, ScenarioRepository $ScenarioRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
     {
-        $Scenario = $serializer->deserialize($request->getContent(), Scenario::class, 'json');
+        $Scenario = $serializer->deserialize($request->getContent(), Scenario::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type']]);
         $Scenario->setWiki($wiki);
         $ScenarioRepository->addScenario($Scenario, $wiki);
 
@@ -54,7 +54,7 @@ class ScenarioController extends AbstractController
     #[IsGranted(WikiElementVoter::EDIT, subject: 'Scenario')]
     public function updateScenario(Scenario $Scenario, Wiki $wiki, Request $request, ScenarioRepository $ScenarioRepository, WikiRepository $wikiRepository, SerializerInterface $serializer): Response
     {
-        $Scenario = $serializer->deserialize($request->getContent(), Scenario::class, 'json', ['object_to_populate' => $Scenario]);
+        $Scenario = $serializer->deserialize($request->getContent(), Scenario::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type'], 'object_to_populate' => $Scenario]);
         $ScenarioRepository->updateScenario($Scenario, $wiki);
 
         $wiki = $wikiRepository->findOneById($wiki->getId());

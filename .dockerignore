@@ -1,0 +1,14 @@
+.git
+vendor
+var
+.env.local
+.env.*.local
+.env.prod
+config/jwt/*.pem
+public/uploads
+
+composer.phar
+tests
+docs
+deploy
+.env.test

@@ -44,7 +44,7 @@ class Caracter
     #[Groups(['caracter.details', 'caracter.index','user.details'])]
     private ?Picture $imageFile = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'caracters')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'Caracters')]
     #[Groups(['caracter.details', 'caracter.index'])]
     private User $user;
 

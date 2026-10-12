@@ -28,7 +28,7 @@ class BestiaryController extends AbstractController
     #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function addbestiary(Wiki $wiki, Request $request, BestiaryRepository $bestiaryRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
     {
-        $bestiary = $serializer->deserialize($request->getContent(), bestiary::class, 'json');
+        $bestiary = $serializer->deserialize($request->getContent(), bestiary::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type']]);
         $bestiary->setWiki($wiki);
         $bestiaryRepository->addBestiary($bestiary, $wiki);
 
@@ -75,7 +75,7 @@ class BestiaryController extends AbstractController
             return $this->json(['error' => 'Bestiary does not belong to the specified wiki.'], 400);
         }
 
-        $bestiary = $serializer->deserialize($request->getContent(), Bestiary::class, 'json', ['object_to_populate' => $bestiary]);
+        $bestiary = $serializer->deserialize($request->getContent(), Bestiary::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type'], 'object_to_populate' => $bestiary]);
         $bestiaryRepository->updateBestiary($bestiary, $wiki);
 
         $wiki = $wikiRepository->findOneById($wiki->getId());

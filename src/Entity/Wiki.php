@@ -38,7 +38,7 @@ class Wiki
     #[Groups(['wiki.index', 'user.details', 'wiki.index'])]
     private ?string $Name = null;
 
-    #[ORM\Column(length: 2048)]
+    #[ORM\Column(type: 'text')]
     #[Groups(['wiki.details'])]
     private ?string $Content = null;
 
@@ -50,7 +50,7 @@ class Wiki
     #[Groups(['wiki.details', 'user.details', 'wiki.index'])]
     private ?string $Status = 'inProgress';
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'wikis')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'Wikis')]
     #[Groups(['wiki.details', 'wiki.index'])]
     private User $user;
 
@@ -90,6 +90,17 @@ class Wiki
     #[Groups(['wiki.details', 'wiki.index'])]
     private ?Picture $imageFile = null;
 
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $characterTemplate = null;
+
+    #[ORM\Version]
+    #[ORM\Column(type: 'integer', options: ['default' => 1])]
+    private int $templateVersion = 1;
+
+    public function getCharacterTemplate(): array { return $this->characterTemplate ?? []; }
+    public function setCharacterTemplate(array $fields): void { $this->characterTemplate = $fields; }
+    public function getTemplateVersion(): int { return $this->templateVersion; }
 
     public function getId(): ?int
     {

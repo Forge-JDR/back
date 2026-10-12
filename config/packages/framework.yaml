@@ -5,6 +5,8 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
+    php_errors:
+        log: true
 
     #esi: true
     #fragments: true

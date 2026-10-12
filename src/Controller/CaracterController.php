@@ -52,7 +52,7 @@ class CaracterController extends AbstractController
 
     public function createCaracter(Request $request, CaracterRepository $repository, SerializerInterface $serializer): JsonResponse
     {
-        $caracter = $serializer->deserialize($request->getContent(), Caracter::class, 'json');
+        $caracter = $serializer->deserialize($request->getContent(), Caracter::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type']]);
         $caracter->setUser($this->getUser());
         $repository->addCaracter($caracter);
 
@@ -63,7 +63,7 @@ class CaracterController extends AbstractController
     }
 
     #[Route('/api/caracters/{caracter}/pictures', name: 'caracter.add.picture', methods: ['POST'])]
-    #[IsGranted('EDIT', subject: 'caracter')]
+    #[IsGranted(CaracterVoter::EDIT, subject: 'caracter')]
     public function addPicture(Caracter $caracter, CaracterRepository $caracterRepository, PictureRepository $pictureRepository, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $picture = $request->files->get('file');
@@ -103,7 +103,7 @@ class CaracterController extends AbstractController
     #[IsGranted(CaracterVoter::EDIT, subject: 'caracter')]
     public function updateCaracter(Caracter $caracter, SerializerInterface $serializer, Request $request, CaracterRepository $repository): JsonResponse
     {
-        $updateCaracter = $serializer->deserialize($request->getContent(), Caracter::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $caracter]);
+        $updateCaracter = $serializer->deserialize($request->getContent(), Caracter::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type'], AbstractNormalizer::OBJECT_TO_POPULATE => $caracter]);
         $repository->updateCaracter($updateCaracter);
         
         $caracter = $repository->findOneById($caracter->getId());

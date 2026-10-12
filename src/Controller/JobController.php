@@ -28,7 +28,7 @@ class JobController extends AbstractController
     #[IsGranted(WikiVoter::EDIT, subject: 'wiki')]
     public function addJob(Wiki $wiki, Request $request, JobRepository $jobRepository, WikiRepository $wikiRepository,SerializerInterface $serializer): Response
     {
-        $job = $serializer->deserialize($request->getContent(), Job::class, 'json');
+        $job = $serializer->deserialize($request->getContent(), Job::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type']]);
         $job->setWiki($wiki);
         $jobRepository->addJob($job, $wiki);
 
@@ -80,7 +80,7 @@ class JobController extends AbstractController
         }
     
         // Désérialiser l'objet Job à partir du contenu de la requête
-        $serializer->deserialize($request->getContent(), Job::class, 'json', ['object_to_populate' => $job]);
+        $serializer->deserialize($request->getContent(), Job::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content', 'type', 'Type'], 'object_to_populate' => $job]);
         $jobRepository->updateJob($job, $wiki);
     
         // Rafraîchir le Wiki pour obtenir les derniers changements

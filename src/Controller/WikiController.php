@@ -59,10 +59,11 @@ class WikiController extends AbstractController
     #[Route('/api/wikis', name: 'wiki.create', methods: ["POST"])]
     public function createWiki(Request $request, WikiRepository $repository, SerializerInterface $serializer): JsonResponse
     {
-        $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json');
+        $wiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', ['attributes' => ['name', 'Name', 'content', 'Content']]);
 
         // Associer l'utilisateur actuellement authentifié au wiki
         $wiki->setUser($this->getUser());
+        $wiki->setStatus('inProgress');
         
 
         $repository->addWiki($wiki);
@@ -106,7 +107,23 @@ class WikiController extends AbstractController
     {
         $this->denyAccessUnlessGranted('EDIT', $wiki);
     
-        $updateWiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $wiki]);
+        $data = $request->toArray();
+        if (array_diff(array_keys($data), ['name', 'Name', 'content', 'Content', 'status', 'Status'])) {
+            return $this->json(['message' => 'Champ non autorisé.'], 400);
+        }
+        $status = $data['Status'] ?? $data['status'] ?? $wiki->getStatus();
+        if (!in_array($status, ['inProgress', 'pendingToPublish', 'published'], true)) {
+            return $this->json(['message' => 'Statut invalide.'], 400);
+        }
+        if ($status !== $wiki->getStatus() && !$this->isGranted('ROLE_ADMIN') &&
+            !($status === 'inProgress' || ($wiki->getStatus() === 'inProgress' && $status === 'pendingToPublish'))) {
+            throw $this->createAccessDeniedException('La publication est réservée à la modération.');
+        }
+        $updateWiki = $serializer->deserialize($request->getContent(), Wiki::class, 'json', [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $wiki,
+            'attributes' => ['name', 'Name', 'content', 'Content'],
+        ]);
+        $updateWiki->setStatus($status);
         $repository->updateWiki($updateWiki);
         
         $wiki = $repository->findOneById($wiki->getId());
